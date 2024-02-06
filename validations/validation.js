@@ -10,7 +10,7 @@ export const registerValidation = [
 
 export const loginValidation = [
     body('email', 'Invalid email').isEmail(),
-    body('password', 'Password to short').isLength({min: 5}),
+    body('password', 'Password to short').notEmpty()
 ];
 
 export const todoCreateValidation = [
