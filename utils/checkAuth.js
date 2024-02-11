@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 export default (request, response, next) => {
     
     const token = (request.headers.authorization || '').split(' ')[1];
-    console.log(token);
     if (token) {
         try {
             const decoded = jwt.verify(token, 'todosSK');

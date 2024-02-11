@@ -14,6 +14,7 @@ mongoose.connect('mongodb+srv://DedNikolai:As541035@cluster0.ez3irsp.mongodb.net
 
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static('uploads'))
 
 app.get('/', (request, response) => {
     return response.send('Hello Node Server')
@@ -23,6 +24,7 @@ app.post('/todos', TodoController.create);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.registerUser);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 app.get('/auth/me', checkAuth, UserController.getMe);
+app.post('/auth/upload-image', checkAuth, UserController.upload.single('image'), UserController.uploadAvatar)
 
 app.listen(PORT, (error) => {
     if (error) {

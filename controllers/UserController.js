@@ -1,7 +1,26 @@
 import UserModel from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { response } from 'express';
+import multer from 'multer';
+import fs from 'fs';
+
+const storage = multer.diskStorage({
+    destination: (_, __, cb) => {
+      try {
+        if (!fs.existsSync('uploads/avatars')) {
+            fs.mkdirSync('uploads/avatars', {recursive: true});
+          }
+      } catch (error) {
+        console.error(error)
+      }
+      cb(null, 'uploads/avatars');
+    },
+    filename: (__, file, cb) => {
+      cb(null, Date.now() + '-' + file.originalname);
+    }
+  });
+
+export const upload = multer({storage});
 
 export const registerUser = async (request, response) => {
     try {
@@ -80,4 +99,17 @@ export const getMe = async (request, response) => {
         message: 'Rgistration Failed'
         })
     }
-}
+};
+
+export const uploadAvatar = async (request, response) => {
+    try {
+        response.json({
+            url: `/uploads/avatars/${request.file.originalname}`
+        })
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({
+        message: 'Upload Failed'
+        })
+    }
+};
