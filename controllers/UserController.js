@@ -15,8 +15,10 @@ const storage = multer.diskStorage({
       }
       cb(null, 'uploads/avatars');
     },
-    filename: (__, file, cb) => {
-      cb(null, Date.now() + '-' + file.originalname);
+    filename: (request, file, cb) => {
+      const savedFileName = Date.now() + '-' + file.originalname;
+      request.fileName = savedFileName; 
+      cb(null, savedFileName);
     }
   });
 
@@ -104,7 +106,7 @@ export const getMe = async (request, response) => {
 export const uploadAvatar = async (request, response) => {
     try {
         response.json({
-            url: `/uploads/avatars/${request.file.originalname}`
+            url: `/uploads/avatars/${request.fileName}`
         })
     } catch (error) {
         console.log(error);

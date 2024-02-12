@@ -14,10 +14,11 @@ mongoose.connect('mongodb+srv://DedNikolai:As541035@cluster0.ez3irsp.mongodb.net
 
 app.use(express.json());
 app.use(cors());
-app.use('/uploads', express.static('uploads'))
+app.use('/uploads', express.static('uploads'));
+app.use(express.static('public'))
 
 app.get('/', (request, response) => {
-    return response.send('Hello Node Server')
+    response.render('index');
 });
 
 app.post('/todos', TodoController.create);
