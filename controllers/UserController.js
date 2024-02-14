@@ -115,3 +115,24 @@ export const uploadAvatar = async (request, response) => {
         })
     }
 };
+
+export const updateUser = async (request, response) => {
+
+    try {
+        const {...user} = request.body;
+        const id = request.params.id;
+        UserModel.findOneAndUpdate({_id: id}, {...user}, {returnDocument: 'after'})
+        .then(res => {
+            if (!res) {
+                return response.status(400).json({message: `User ${id} not found`})
+            }
+
+            return response.status(200).json(res._doc)
+        }) 
+        
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({message: 'Update Failed'});
+    }
+
+};
