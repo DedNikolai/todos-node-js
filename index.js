@@ -22,7 +22,9 @@ app.get('/', (request, response) => {
     response.render('index');
 });
 
-app.post('/todos', checkAuth, todoCreateValidation, handleValidationErrors ,TodoController.create);
+app.post('/todos', checkAuth, todoCreateValidation, handleValidationErrors, TodoController.create);
+app.patch('/todos/:id', checkAuth, todoCreateValidation, handleValidationErrors, TodoController.update);
+app.delete('/todos/:id', checkAuth, handleValidationErrors, TodoController.remove);
 app.get('/todos', checkAuth, handleValidationErrors ,TodoController.getAllByUser);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.registerUser);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
