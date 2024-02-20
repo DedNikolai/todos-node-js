@@ -18,9 +18,19 @@ export const create = async (request, response) => {
 
 export const getAllByUser = async (request, response) => {
     const userId = request.userId
+    const done = request.query.isDone;
+    let conditions;
+
+    if (done === undefined || done === '') {
+        conditions = {user: userId}
+    } else {
+        conditions = {user: userId, isDone: done}
+    }
 
     try {
-        const todos = await TodoModel.find({user: userId}).exec();
+        const todos = await TodoModel.find(conditions)
+            .sort({updatedAt: 'desc'})
+            .exec();
         return response.status(200).json(todos);
     } catch(error) {
         console.log(error);
@@ -81,5 +91,33 @@ export const remove = (request, response) => {
         response.status(500).json({
             message: 'Can\'t delete todo'
         })
+    }
+};
+
+export const updateAll = async (request, response) => {
+    const idArray = request.body;
+
+    try {
+        const res = await TodoModel.updateMany({_id: {$in: idArray}},
+            {isDone: true});
+        return response.status(200).json({message: `${res.matchedCount} Todos was updated`});            
+    } catch (error) {
+            console.log(error);
+            response.status(500).json({
+                message: 'Can\'t update some todos'
+            })
+    }
+};
+
+export const removeAll = async (request, response) => {
+    const idArray = request.body;
+    try {
+        const res = await TodoModel.deleteMany({isDone: true });
+        return response.status(200).json({message: `${res.deletedCount} Todos was deleted`});            
+    } catch (error) {
+            console.log(error);
+            response.status(500).json({
+                message: 'Can\'t delete some todos'
+            })
     }
 };
