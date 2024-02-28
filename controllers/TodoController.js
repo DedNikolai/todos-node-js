@@ -1,11 +1,11 @@
 import TodoModel from '../models/Todo.js';
 
 export const create = async (request, response) => {
-    const {text} = request.body;
+    const {text, todoDate} = request.body;
     const userId = request.userId
 
     try {
-        const data = new TodoModel({text, isDone: false, user: userId});
+        const data = new TodoModel({text, todoDate, isDone: false, user: userId});
         const todo = await data.save();
         response.status(200).json(todo);
     } catch(error) {

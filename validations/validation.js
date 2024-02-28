@@ -20,6 +20,7 @@ export const loginValidation = [
 ];
 
 export const todoCreateValidation = [
-    body('text', 'Invalid text').isLength({min: 5}).isString(),   
+    body('text', 'Invalid text').isLength({min: 5}).isString(),
+    body('todoDate', 'Invalid Date').isISO8601()
 ];
 
