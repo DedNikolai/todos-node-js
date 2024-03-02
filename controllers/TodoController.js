@@ -17,16 +17,15 @@ export const create = async (request, response) => {
 };
 
 export const getAllByUser = async (request, response) => {
-    const userId = request.userId
-    const done = request.query.isDone;
-    let conditions;
-
-    if (done === undefined || done === '') {
-        conditions = {user: userId}
-    } else {
-        conditions = {user: userId, isDone: done}
+    const conditions = {user: request.userId};
+    const options = request.query;
+    
+    for (let key in options) {
+        if (options[key]) {
+            conditions[key] = options[key];
+        }
     }
-
+    
     try {
         const todos = await TodoModel.find(conditions)
             .sort({updatedAt: 'desc'})

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import {TodoController, UserController} from './controllers/index.js';
 import {checkAuth, handleValidationErrors} from './utils/index.js';
-import { loginValidation, registerValidation, userValidation, todoCreateValidation } from "./validations/validation.js";
+import { todoUpdareValidation, loginValidation, registerValidation, userValidation, todoCreateValidation } from "./validations/validation.js";
 import handlevalidationErrors from './utils/handlevalidationErrors.js';
 
 const app = express();
@@ -23,7 +23,7 @@ app.get('/', (request, response) => {
 });
 
 app.post('/todos', checkAuth, todoCreateValidation, handleValidationErrors, TodoController.create);
-app.patch('/todos/:id', checkAuth, todoCreateValidation, handleValidationErrors, TodoController.update);
+app.patch('/todos/:id', checkAuth, todoUpdareValidation, handleValidationErrors, TodoController.update);
 app.patch('/todos', checkAuth, handleValidationErrors, TodoController.updateAll);
 app.delete('/todos/:id', checkAuth, handleValidationErrors, TodoController.remove);
 app.delete('/todos', checkAuth, handleValidationErrors, TodoController.removeAll);
