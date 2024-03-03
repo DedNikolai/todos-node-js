@@ -18,16 +18,18 @@ export const create = async (request, response) => {
 
 export const getAllByUser = async (request, response) => {
     const conditions = {user: request.userId};
-    const options = request.query;
+    const {page, size, ...options} = request.query;
     
     for (let key in options) {
         if (options[key]) {
             conditions[key] = options[key];
         }
     }
-    
+
     try {
         const todos = await TodoModel.find(conditions)
+            .limit(size * 1)
+            .skip((page - 1) * size)
             .sort({updatedAt: 'desc'})
             .exec();
         return response.status(200).json(todos);
