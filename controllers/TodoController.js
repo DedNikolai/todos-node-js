@@ -19,7 +19,7 @@ export const create = async (request, response) => {
 export const getAllByUser = async (request, response) => {
     const conditions = {user: request.userId};
     const {page, size, ...options} = request.query;
-    
+    console.log(page, size, options)
     for (let key in options) {
         if (options[key]) {
             conditions[key] = options[key];
@@ -28,11 +28,16 @@ export const getAllByUser = async (request, response) => {
 
     try {
         const todos = await TodoModel.find(conditions)
-            .limit(size * 1)
-            .skip((page - 1) * size)
-            .sort({updatedAt: 'desc'})
+            .limit(+size * 1)
+            .skip((+page - 1) * +size)
+            .sort({createdAt: 'desc'})
             .exec();
-        return response.status(200).json(todos);
+        const count = await TodoModel.countDocuments(conditions);    
+        return response.status(200).json({
+            todos,
+            totalPages: Math.ceil(count / size),
+            currentPage: +page,
+        });
     } catch(error) {
         console.log(error);
         response.status(500).json({
@@ -113,7 +118,7 @@ export const updateAll = async (request, response) => {
 export const removeAll = async (request, response) => {
     const idArray = request.body;
     try {
-        const res = await TodoModel.deleteMany({isDone: true });
+        const res = await TodoModel.deleteMany({_id: {$in: idArray}, isDone: true });
         return response.status(200).json({message: `${res.deletedCount} Todos was deleted`});            
     } catch (error) {
             console.log(error);
