@@ -56,7 +56,7 @@ export const registerUser = async (request, response) => {
                 token: crypto.randomBytes(16).toString("hex"),
             });
 
-            const message = `http://localhost:8000/auth/verify/${userFromDB._id}/${setToken.token}`;
+            const message = `http://localhost:3000/auth/verify/${userFromDB._id}?token=${setToken.token}`;
             await sendEmail(userFromDB.email, "Verify Email", message);
         }
 
@@ -157,4 +157,33 @@ export const updateUser = async (request, response) => {
         response.status(500).json({message: 'Update Failed'});
     }
 
+};
+
+export const verify = async (request, response) => {
+    const {token} = request.query;
+    const id = request.params.id;
+
+    try {
+        const verifyToken = await VerifyToken.findOne({user: id, token: token});
+
+        if (!verifyToken) {
+            return response.status(400).json({message: "Email was not confirmed"})
+        }
+
+        UserModel.findOneAndUpdate({_id: id}, {verified: true}, {returnDocument: 'after'})
+        .then(res => {
+            if (!res) {
+                return response.status(400).json({message: `User ${id} not found`})
+            }
+
+            return response.status(200).json({message: "Email was confirmed"});
+        }) 
+            
+    
+    } catch(error) {
+        console.log(error);
+        response.status(500).json({
+            message: 'Can\'t confirm email'
+        })
+    }
 };

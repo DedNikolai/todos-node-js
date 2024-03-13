@@ -33,6 +33,7 @@ app.post('/auth/login', loginValidation, handleValidationErrors, UserController.
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/upload-image', checkAuth, UserController.upload.single('image'), UserController.uploadAvatar);
 app.patch('/auth/update/:id', checkAuth, userValidation, handlevalidationErrors, UserController.updateUser);
+app.get('/auth/verify/:id', UserController.verify);
 
 app.listen(PORT, (error) => {
     if (error) {

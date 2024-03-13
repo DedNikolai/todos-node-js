@@ -8,13 +8,13 @@ const sendEmail = async (email, subject, text) => {
           rejectUnauthorized: false
         },
         auth: {
-          user: 'soloists.academy@gmail.com',
-          pass: 'As541035ac0250ar#',
+          user: 'nikolai.blashchuk@gmail.com',
+          pass: 'dcqr vsur zdtr zlbi',
         },
       });
   
       await transporter.sendMail({
-        from: 'soloists.academy@gmail.com',
+        from: 'nikolai.blashchuk@gmail.com',
         to: email,
         subject: subject,
         text: text,
