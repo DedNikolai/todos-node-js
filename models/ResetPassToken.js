@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const VerifyTokenSchema = new mongoose.Schema({
+const ResetPassTokenSchema = new mongoose.Schema({
     token: {
         type: String,
         required: true
@@ -19,4 +19,4 @@ const VerifyTokenSchema = new mongoose.Schema({
    },
     });
 
-    export default mongoose.model('VerifyToken', VerifyTokenSchema);
+    export default mongoose.model('ResetPassToken', ResetPassTokenSchema);
