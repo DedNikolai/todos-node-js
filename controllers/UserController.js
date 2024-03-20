@@ -266,3 +266,38 @@ export const resetPass = async (request, response) => {
         })
     }
 };
+
+export const updateEmail = async (request, response) => {
+
+    try {
+        const {email} = request.body;
+        const id = request.params.id;
+        const user = await UserModel.findById(id);
+
+        if (!user) {
+            return response.status(400).json({message: "User not found"})
+        };
+
+        let token = await VerifyToken.findOne({ user: user._doc._id });
+        
+        if (token) { 
+            await token.deleteOne()
+        };
+
+        let setToken = await VerifyToken.create({
+            user: user._doc._id,
+            token: crypto.randomBytes(16).toString("hex"),
+        });
+
+        const message = `Verify code:    ${setToken.token}`;
+        await sendEmail(email, "Verify Email", message);
+
+        return response.status(200).json({message: "We send verify code to you email to confirm changes"})
+        
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({message: 'Update Failed'});
+    }
+
+};
+
