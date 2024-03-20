@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import multer from 'multer';
 import fs from 'fs';
 import VerifyToken from '../models/VerifyToken.js';
+import ResetPassToken from '../models/ResetPassToken.js';
 import crypto from 'crypto';
 import {sendEmail} from '../utils/index.js'
 
@@ -164,6 +165,7 @@ export const verify = async (request, response) => {
     const id = request.params.id;
 
     try {
+
         const verifyToken = await VerifyToken.findOne({user: id, token: token});
 
         if (!verifyToken) {
@@ -175,7 +177,7 @@ export const verify = async (request, response) => {
             if (!res) {
                 return response.status(400).json({message: `User ${id} not found`})
             }
-
+            verifyToken.deleteOne();
             return response.status(200).json({message: "Email was confirmed"});
         }) 
             
@@ -184,6 +186,83 @@ export const verify = async (request, response) => {
         console.log(error);
         response.status(500).json({
             message: 'Can\'t confirm email'
+        })
+    }
+};
+
+export const forgotPass = async (request, response) => {
+    const {email} = request.body;
+
+    try {
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return response.status(400).json({message: "Email was not found"})
+        }
+
+        let token = await ResetPassToken.findOne({ user: user._id });
+        
+        if (token) { 
+            await token.deleteOne()
+        };
+
+        const salt = await bcrypt.genSalt(10);
+        const resetToken = crypto.randomBytes(16).toString("hex");
+        const hash = await bcrypt.hash(resetToken, salt);
+
+
+
+        await new ResetPassToken({
+            user: user._id,
+            token: hash,
+            createdAt: Date.now(),
+          }).save();
+ 
+          const message = `http://localhost:3000/reset-pass/${user._id}?token=${resetToken}`;
+          await sendEmail(user.email, "Verify Email", message);
+          return response.status(200).json({message: "To reset pass check ypur email"});
+
+    } catch(error) {
+        console.log(error);
+        response.status(500).json({
+            message: 'Can\'t reset password'
+        })
+    }
+};
+
+export const resetPass = async (request, response) => {
+    const {password, id, token} = request.body
+
+    try {
+        const  passwordResetToken = await ResetPassToken.findOne({user: id });
+        
+        if (!passwordResetToken) {
+            throw new Error("Invalid or expired password reset token");
+        }
+
+        const isValid = await bcrypt.compare(token, passwordResetToken.token);
+        
+        if (!isValid) {
+            throw new Error("Invalid password reset token");
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passHash = await bcrypt.hash(password, salt);
+        
+        UserModel.findOneAndUpdate({_id: id}, {passwordHash: passHash}, {returnDocument: 'after'})
+        .then(res => {
+            if (!res) {
+                return response.status(400).json({message: `Password was not updated`})
+            }
+            passwordResetToken.deleteOne();
+            return response.status(200).json({message: "Password was updated"});
+        }) 
+            
+    
+    } catch(error) {
+        console.log(error);
+        response.status(500).json({
+            message: 'Can\'t update password'
         })
     }
 };
