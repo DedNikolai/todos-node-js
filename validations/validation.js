@@ -28,3 +28,8 @@ export const todoUpdareValidation = [
     body('text', 'Invalid text').isLength({min: 5}).isString()
 ];
 
+export const emailValidation = [
+    body('email', 'Invalid email').isEmail()
+];
+
+

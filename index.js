@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import {TodoController, UserController} from './controllers/index.js';
 import {checkAuth, handleValidationErrors} from './utils/index.js';
-import { todoUpdareValidation, loginValidation, registerValidation, userValidation, todoCreateValidation } from "./validations/validation.js";
+import { todoUpdareValidation, loginValidation, registerValidation, userValidation, todoCreateValidation, emailValidation } from "./validations/validation.js";
 import handlevalidationErrors from './utils/handlevalidationErrors.js';
 
 const app = express();
@@ -33,6 +33,10 @@ app.post('/auth/login', loginValidation, handleValidationErrors, UserController.
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/upload-image', checkAuth, UserController.upload.single('image'), UserController.uploadAvatar);
 app.patch('/auth/update/:id', checkAuth, userValidation, handlevalidationErrors, UserController.updateUser);
+app.get('/auth/verify/:id', UserController.verify);
+app.post('/auth/forgot-pass', UserController.forgotPass);
+app.post('/auth/reset-pass', UserController.resetPass);
+app.post('/auth/update-email/:id', checkAuth, emailValidation, handlevalidationErrors, UserController.updateEmail);
 
 app.listen(PORT, (error) => {
     if (error) {
