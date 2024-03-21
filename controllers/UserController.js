@@ -270,6 +270,39 @@ export const resetPass = async (request, response) => {
 export const updateEmail = async (request, response) => {
 
     try {
+        const {email, token} = request.body;
+        const id = request.params.id;
+        const user = await UserModel.findById(id);
+
+        if (!user) {
+            return response.status(400).json({message: "User not found"})
+        };
+
+        let tokenFromDb = await VerifyToken.findOne({ user: user._doc._id, token: token });
+        
+        if (!tokenFromDb) {
+            throw new Error("Invalid reset token");
+        }
+
+        UserModel.findOneAndUpdate({_id: id}, {email: email}, {returnDocument: 'after'})
+        .then(res => {
+            if (!res) {
+                return response.status(400).json({message: `Email was not updated`})
+            }
+            tokenFromDb.deleteOne();
+            return response.status(200).json(res._doc);
+        })        
+        
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({message: 'Update Failed'});
+    }
+
+};
+
+export const resetEmail = async (request, response) => {
+
+    try {
         const {email} = request.body;
         const id = request.params.id;
         const user = await UserModel.findById(id);
@@ -286,7 +319,7 @@ export const updateEmail = async (request, response) => {
 
         let setToken = await VerifyToken.create({
             user: user._doc._id,
-            token: crypto.randomBytes(16).toString("hex"),
+            token: crypto.randomBytes(8).toString("hex"),
         });
 
         const message = `Verify code:    ${setToken.token}`;

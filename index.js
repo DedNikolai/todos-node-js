@@ -36,7 +36,8 @@ app.patch('/auth/update/:id', checkAuth, userValidation, handlevalidationErrors,
 app.get('/auth/verify/:id', UserController.verify);
 app.post('/auth/forgot-pass', UserController.forgotPass);
 app.post('/auth/reset-pass', UserController.resetPass);
-app.post('/auth/update-email/:id', checkAuth, emailValidation, handlevalidationErrors, UserController.updateEmail);
+app.post('/auth/reset-email/:id', checkAuth, emailValidation, handlevalidationErrors, UserController.resetEmail);
+app.patch('/auth/update-email/:id', checkAuth, emailValidation, handlevalidationErrors, UserController.updateEmail);
 
 app.listen(PORT, (error) => {
     if (error) {
