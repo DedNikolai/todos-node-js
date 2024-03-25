@@ -5,11 +5,11 @@ import {TodoController, UserController} from './controllers/index.js';
 import {checkAuth, handleValidationErrors} from './utils/index.js';
 import { todoUpdareValidation, loginValidation, registerValidation, userValidation, todoCreateValidation, emailValidation } from "./validations/validation.js";
 import handlevalidationErrors from './utils/handlevalidationErrors.js';
+import 'dotenv/config';
 
 const app = express();
-const PORT = 8000;
 
-mongoose.connect('mongodb+srv://DedNikolai:As541035@cluster0.ez3irsp.mongodb.net/todos?retryWrites=true&w=majority')
+mongoose.connect(process.env.DB_URL)
 .then(() => console.log("DB OK"))
 .catch((error) => console.log('DB error', error));
 
@@ -39,7 +39,7 @@ app.post('/auth/reset-pass', UserController.resetPass);
 app.post('/auth/reset-email/:id', checkAuth, emailValidation, handlevalidationErrors, UserController.resetEmail);
 app.patch('/auth/update-email/:id', checkAuth, emailValidation, handlevalidationErrors, UserController.updateEmail);
 
-app.listen(PORT, (error) => {
+app.listen(process.env.PORT, (error) => {
     if (error) {
         return console.log(error);
     }
