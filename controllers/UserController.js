@@ -6,7 +6,8 @@ import fs from 'fs';
 import VerifyToken from '../models/VerifyToken.js';
 import ResetPassToken from '../models/ResetPassToken.js';
 import crypto from 'crypto';
-import {sendEmail} from '../utils/index.js'
+import {sendEmail} from '../utils/index.js';
+import 'dotenv/config';
 
 const storage = multer.diskStorage({
     destination: (_, __, cb) => {
@@ -38,7 +39,7 @@ export const registerUser = async (request, response) => {
             return response.status(400).json({message: "User with given email already exist!"});
         }
         
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(+process.env.BCRYPT_SALT);
         const passHash = await bcrypt.hash(password, salt);
 
         const data = new UserModel({
@@ -57,14 +58,15 @@ export const registerUser = async (request, response) => {
                 token: crypto.randomBytes(16).toString("hex"),
             });
 
-            const message = `http://localhost:3000/auth/verify/${userFromDB._id}?token=${setToken.token}`;
+            const message = `${process.env.CLIENT_URL}/auth/verify/${userFromDB._id}?token=${setToken.token}`;
             await sendEmail(userFromDB.email, "Verify Email", message);
+            return response.status(200).json({message: 'We sent letter to your email to confir registration'})
         }
 
         const token = jwt.sign({
             _id: userFromDB._id,
 
-        }, 'todosSK', {expiresIn: '30d'});
+        }, process.env.SECRET_KEY, {expiresIn: '30d'});
 
         const {passwordHash, ...user} = userFromDB._doc;
 
@@ -93,7 +95,7 @@ export const login = async (request, response) => {
 
         const token =jwt.sign({
             _id: user._doc._id,
-        }, 'todosSK', {expiresIn: '30d'});
+        }, process.env.SECRET_KEY, {expiresIn: '30d'});
 
         const {passwordHash, ...userFromDB} = user._doc;
 
@@ -206,7 +208,7 @@ export const forgotPass = async (request, response) => {
             await token.deleteOne()
         };
 
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(+process.env.BCRYPT_SALT);
         const resetToken = crypto.randomBytes(16).toString("hex");
         const hash = await bcrypt.hash(resetToken, salt);
 
@@ -218,7 +220,7 @@ export const forgotPass = async (request, response) => {
             createdAt: Date.now(),
           }).save();
  
-          const message = `http://localhost:3000/reset-pass/${user._id}?token=${resetToken}`;
+          const message = `${process.env.CLIENT_URL}/reset-pass/${user._id}?token=${resetToken}`;
           await sendEmail(user.email, "Verify Email", message);
           return response.status(200).json({message: "To reset pass check ypur email"});
 
@@ -246,7 +248,7 @@ export const resetPass = async (request, response) => {
             throw new Error("Invalid password reset token");
         }
 
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(+process.env.BCRYPT_SALT);
         const passHash = await bcrypt.hash(password, salt);
         
         UserModel.findOneAndUpdate({_id: id}, {passwordHash: passHash}, {returnDocument: 'after'})
