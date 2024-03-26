@@ -19,7 +19,7 @@ app.use('/uploads', express.static('uploads'));
 app.use(express.static('public'))
 
 app.get('/', (request, response) => {
-    response.render('index');
+    response.status(200).send('Hello Heroku App');
 });
 
 app.post('/todos', checkAuth, todoCreateValidation, handleValidationErrors, TodoController.create);
