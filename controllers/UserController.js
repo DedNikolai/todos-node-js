@@ -104,7 +104,7 @@ export const login = async (request, response) => {
     } catch (error) {
         console.log(error);
         response.status(500).json({
-        message: 'Auth Failed'
+        message: error
     })
     }
 };
